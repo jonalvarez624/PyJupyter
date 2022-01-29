@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[12]:
-
-
 #Import Dependencies
 from office365.runtime.auth.authentication_context import AuthenticationContext
 from office365.runtime.client_request import ClientRequest
@@ -32,10 +26,6 @@ def download_files(row):
         file = ctx.web.get_file_by_server_relative_url(file_url).download(local_file).execute_query()
     
     return(print("[Ok] file has been downloaded into: {0}".format(download_path)))
-
-
-# In[2]:
-
 
 tenant_url = "https://{company}.sharepoint.com/sites/TestTeam/"
 folder_url = "/sites/TestTeam/Shared Documents/"
@@ -72,54 +62,5 @@ for myfile in files:
 pd.set_option('display.max_colwidth', None)
 df_files
 
-
-# In[3]:
-
-
 #run apply function
 df_files = df_files.apply(download_files, axis=1)
-
-
-# In[41]:
-
-
-
-
-
-# In[9]:
-
-
-
-
-
-# In[10]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[11]:
-
-
-get_ipython().system('jupyter nbconvert --to script Sharepoint_Handling.ipynb')
-with open('Sharepoint_Download.py', 'r') as f:
-    lines = f.readlines()
-with open('Sharepoint_Download.py', 'w') as f:
-    for line in lines:
-        if 'nbconvert --to script' in line:
-            break
-        else:
-            f.write(line)
-
-
-# In[ ]:
-
-
-
-
