@@ -17,24 +17,24 @@ import time
 
 try:
     #read in db credentials
-    with open('//oneabbott.com/ADFS9/DEPT/DEPT/Dcbc_215/eCommerce/Databases/Source Files/ANPST_PASS.txt') as creds:
+    with open('./Databases/Source Files/ANPST_PASS.txt') as creds:
         anpst = creds.read().splitlines()
     creds.close
 
     #Connect to ANPST
-    conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=WQ00391p;Database=ANPST;UID=ANPST_USER;PWD='+anpst[0])
+    conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=p;Database=DB;UID=USER;PWD='+anpst[0])
     cursor = conn.cursor()
 
     #Create SQL engine - Need to Use ODBC Driver 17 for SQL Server in order to improve speed
-    engine = create_engine("mssql+pyodbc://{user}:{pw}@WQ00391p/{db}?driver=ODBC+Driver+17+for+SQL+Server"
-                           .format(user="ANPST_USER",
+    engine = create_engine("mssql+pyodbc://{user}:{pw}@p/{db}?driver=ODBC+Driver+17+for+SQL+Server"
+                           .format(user="USER",
                                    pw=anpst[0],
-                                   db="ANPST"),
+                                   db="DB"),
                            #This speeds up insert and updates statements 10 fold
                            fast_executemany=True)
 
     #read in salesforce credentials from central location
-    with open('//oneabbott.com/ADFS9/DEPT/DEPT/Dcbc_215/eCommerce/Databases/Source Files/SALESFORCE_PASS.txt') as creds:
+    with open('./Databases/Source Files/SALESFORCE_PASS.txt') as creds:
         lines = creds.read().splitlines()
     creds.close
 
@@ -42,8 +42,8 @@ try:
     sf = Salesforce(username=lines[0],password=lines[1], security_token=lines[2])
 
     #Download Account Territory csv from report
-    sf_instance = 'https://anretail-prod.lightning.force.com/' #AN Salesforce Instance URL
-    reportId = '00O4X000009k6zRUAQ' # add report id
+    sf_instance = 'https://salesforce.com/' #AN Salesforce Instance URL
+    reportId = '001' # add report id
     export = '?isdtp=p1&export=1&enc=UTF-8&xf=csv'
     sfUrl = sf_instance + reportId + export
     response = requests.get(sfUrl, headers=sf.headers, cookies={'sid': sf.session_id})
@@ -55,8 +55,8 @@ try:
            )
 
     #Download Internal Users csv from report
-    sf_instance = 'https://anretail-prod.lightning.force.com/' #AN Salesforce Instance URL
-    reportId = '00O4X000009kCFjUAM' # add report id
+    sf_instance = 'https://salesforce.com/' #AN Salesforce Instance URL
+    reportId = '001' # add report id
     export = '?isdtp=p1&export=1&enc=UTF-8&xf=csv'
     sfUrl = sf_instance + reportId + export
     response = requests.get(sfUrl, headers=sf.headers, cookies={'sid': sf.session_id})
@@ -97,7 +97,7 @@ try:
         df_new_users.to_sql("RPT_Person", engine, index=False,if_exists="append",schema="dbo")
 
     #After updating the RPT_Person table build query to update RPT_Group_Membership Table
-    query = open('//oneabbott.com/ADFS9/DEPT/DEPT/Dcbc_215/eCommerce/Databases/Source Files/SALESFORCE_UPDATE_GROUP_MEMBERSHIP.sql', 'r')
+    query = open('./Databases/Source Files/SALESFORCE_UPDATE_GROUP_MEMBERSHIP.sql', 'r')
     df_membership = pd.read_sql_query(query.read(), engine)
 
     print('New Group Membership Row Count is:', len(df_membership.index))
@@ -113,7 +113,7 @@ try:
     creds.close
 
     # Authenticate for new sharepoint site to read in manual list
-    tenant_url = "https://abbott.sharepoint.com/sites/US-ANPD-RGM/"
+    tenant_url = "https://sharepoint.com/sites/US-ANPD-RGM/"
     file_url = "/sites/US-ANPD-RGM/Shared Documents/General/Reporting/Row_Level_Security_Manual_Userlist.xlsx"
     filenm = "Row_Level_Security_Manual_Userlist.xlsx"
 
@@ -127,7 +127,7 @@ try:
     print("Web title: {0}".format(web.properties['Title']))
 
     # Concatentate to save to directory
-    download_prefix = "//oneabbott.com/ADFS9/DEPT/Data/AN_Retail_Advanced_Analytics/RGM/RLS/"
+    download_prefix = "./AN_Retail_Advanced_Analytics/RGM/RLS/"
     download_path = "".join([download_prefix, filenm])
     # Let the magic happen
     with open(download_path, "wb") as local_file:
